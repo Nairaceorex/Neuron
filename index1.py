@@ -1,8 +1,8 @@
 import numpy as np
 import scipy.special
-#import imageio
-#import glob
-#import matplotlib.pyplot
+import imageio
+import glob
+import matplotlib.pyplot
 
 
 class Neuron:
@@ -16,8 +16,13 @@ class Neuron:
         self.lr = learningrate
         # Матрица весовых коэфф. связей wih и who
         # Весовые коэфф. связей между узлом i и j(w_i_j)
+        """
         self.wih = (np.random.rand(self.hnodes, self.inodes) - 0.5)
         self.who = (np.random.rand(self.onodes, self.hnodes) - 0.5)
+        """
+        self.wih = numpy.random.normal(0.0, pow(self.inodes, -0.5), (self.hnodes, self.inodes))
+        self.who = numpy.random.normal(0.0, pow(self.hnodes, -0.5), (self.onodes, self.hnodes))
+
         # Функция активации
         self.activation_function = lambda x: scipy.special.expit(x)
 
@@ -102,7 +107,7 @@ for e in range(epochs):
     pass
 
 # загрузка тестовых данных MNIST
-
+"""
 test_data_file = open("mnist_dataset/mnist_test.csv", 'r')
 test_data_list = test_data_file.readlines()
 test_data_file.close()
@@ -139,3 +144,49 @@ for record in test_data_list:
 print(scorecard)
 scorecard_array = np.asarray(scorecard)
 print('efficience:', scorecard_array.sum() / scorecard_array.size)
+"""
+
+# our own image test data set
+our_own_dataset = []
+
+for image_file_name in glob.glob('my_own_images/2828_my_own_?.png'):
+    print ("loading ... ", image_file_name)
+    # use the filename to set the correct label
+    label = int(image_file_name[-5:-4])
+    # load image data from png files into an array
+    img_array = imageio.imread(image_file_name, as_gray=True)
+    # reshape from 28x28 to list of 784 values, invert values
+    img_data  = 255.0 - img_array.reshape(784)
+    # then scale data to range from 0.01 to 1.0
+    img_data = (img_data / 255.0 * 0.99) + 0.01
+    print(numpy.min(img_data))
+    print(numpy.max(img_data))
+    # append label and image data  to test data set
+    record = numpy.append(label,img_data)
+    print(record)
+    our_own_dataset.append(record)
+    pass
+
+item = 2
+
+# plot image
+matplotlib.pyplot.imshow(our_own_dataset[item][1:].reshape(28,28), cmap='Greys', interpolation='None')
+
+# correct answer is first value
+correct_label = our_own_dataset[item][0]
+# data is remaining values
+inputs = our_own_dataset[item][1:]
+
+# query the network
+outputs = n.query(inputs)
+print (outputs)
+
+# the index of the highest value corresponds to the label
+label = numpy.argmax(outputs)
+print("network says ", label)
+# append correct or incorrect to list
+if (label == correct_label):
+    print ("match!")
+else:
+    print ("no match!")
+    pass
