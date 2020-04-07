@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.special
+import scipy.ndimage
 
 
 class Neuron:
@@ -14,14 +15,14 @@ class Neuron:
         # Матрица весовых коэфф. связей wih и who
         # Весовые коэфф. связей между узлом i и j(w_i_j)
         """
-        self.wih = np.random.normal(0.0, pow(self.inodes, -0.5), (self.hnodes, self.inodes))
-        self.who = np.random.normal(0.0, pow(self.hnodes, -0.5), (self.onodes, self.hnodes))
-        
-        """
-
         self.wih = (np.random.rand(self.hnodes, self.inodes) - 0.5)
         self.who = (np.random.rand(self.onodes, self.hnodes) - 0.5)
+      
+        """
+		self.wih = np.random.normal(0.0, pow(self.inodes, -0.5), (self.hnodes, self.inodes))
+        self.who = np.random.normal(0.0, pow(self.hnodes, -0.5), (self.onodes, self.hnodes))
 
+       
         # Функция активации
         self.activation_function = lambda x: scipy.special.expit(x)
 
@@ -93,6 +94,14 @@ for e in range(epochs):
         targets = np.zeros(output_nodes) + 0.01
         targets[int(all_values[0])] = 0.99
         n.train(inputs, targets)
+
+        ## create rotated variations
+        # rotated anticlockwise by x degrees
+        inputs_plusx_img = scipy.ndimage.interpolation.rotate(inputs.reshape(28,28), 10, cval=0.01, order=1, reshape=False)
+        n.train(inputs_plusx_img.reshape(784), targets)
+        # rotated clockwise by x degrees
+        inputs_minusx_img = scipy.ndimage.interpolation.rotate(inputs.reshape(28,28), -10, cval=0.01, order=1, reshape=False)
+        n.train(inputs_minusx_img.reshape(784), targets)
         pass
     pass
 

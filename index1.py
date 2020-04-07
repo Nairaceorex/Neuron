@@ -2,7 +2,8 @@ import numpy as np
 import scipy.special
 import imageio
 import glob
-import matplotlib.pyplot
+# import matplotlib.pyplot
+import scipy.ndimage
 
 
 class Neuron:
@@ -27,7 +28,7 @@ class Neuron:
         self.activation_function = lambda x: scipy.special.expit(x)
 
         pass
-
+"""
     def train(self, inputs_list, targets_list):
         # Преобразовать входные данные в список(2D)
         inputs = np.array(inputs_list, ndmin=2).T
@@ -59,7 +60,7 @@ class Neuron:
         self.wih += self.lr * np.dot((hidden_errors * hidden_outputs * (1 - hidden_outputs)), np.transpose(inputs))
 
         return hidden_errors
-
+"""
     def query(self, inputs_list):
         # Преобразовать входные данные в список(2D)
         inputs = np.array(inputs_list, ndmin=2).T
@@ -87,7 +88,7 @@ learning_rate = 0.1
 
 # экземпляр нейронной сети
 n = Neuron(input_nodes, hidden_nodes, output_nodes, learning_rate)
-
+"""
 # загрузка в тренировочный список данных MNIST
 training_data_file = open("mnist_dataset/mnist_train.csv", 'r')
 training_data_list = training_data_file.readlines()
@@ -103,11 +104,18 @@ for e in range(epochs):
         targets = np.zeros(output_nodes) + 0.01
         targets[int(all_values[0])] = 0.99
         n.train(inputs, targets)
+
+        inputs_plusx_img = scipy.ndimage.interpolation.rotate(inputs.reshape(28,28), 10, cval=0.01, order=1, reshape=False)
+        n.train(inputs_plusx_img.reshape(784), targets)
+        # rotated clockwise by x degrees
+        inputs_minusx_img = scipy.ndimage.interpolation.rotate(inputs.reshape(28,28), -10, cval=0.01, order=1, reshape=False)
+        n.train(inputs_minusx_img.reshape(784), targets)
+
         pass
     pass
-
-# загрузка тестовых данных MNIST
 """
+# загрузка тестовых данных MNIST
+
 test_data_file = open("mnist_dataset/mnist_test.csv", 'r')
 test_data_list = test_data_file.readlines()
 test_data_file.close()
