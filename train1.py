@@ -1,8 +1,5 @@
 import numpy as np
 import scipy.special
-import imageio
-import glob
-import matplotlib.pyplot
 
 
 class Neuron:
@@ -17,11 +14,13 @@ class Neuron:
         # Матрица весовых коэфф. связей wih и who
         # Весовые коэфф. связей между узлом i и j(w_i_j)
         """
-        self.wih = (np.random.rand(self.hnodes, self.inodes) - 0.5)
-        self.who = (np.random.rand(self.onodes, self.hnodes) - 0.5)
-        """
         self.wih = np.random.normal(0.0, pow(self.inodes, -0.5), (self.hnodes, self.inodes))
         self.who = np.random.normal(0.0, pow(self.hnodes, -0.5), (self.onodes, self.hnodes))
+        
+        """
+
+        self.wih = (np.random.rand(self.hnodes, self.inodes) - 0.5)
+        self.who = (np.random.rand(self.onodes, self.hnodes) - 0.5)
 
         # Функция активации
         self.activation_function = lambda x: scipy.special.expit(x)
@@ -60,11 +59,11 @@ class Neuron:
 
         return hidden_errors
 
-    def wih(self):
-    	return self.wih
+    def wih_who(self):
+        return self.wih
 
-    def woh(self):
-    	return self.who
+    def who_wih(self):
+        return self.who
 
 
 # кол-во входных, скрытых и выходных узлов
@@ -80,7 +79,7 @@ learning_rate = 0.1
 n = Neuron(input_nodes, hidden_nodes, output_nodes, learning_rate)
 
 # загрузка в тренировочный список данных MNIST
-training_data_file = open("mnist_dataset/mnist_test.csv", 'r')
+training_data_file = open("mnist_dataset/mnist_train.csv", 'r')
 training_data_list = training_data_file.readlines()
 training_data_file.close()
 
@@ -97,7 +96,16 @@ for e in range(epochs):
         pass
     pass
 
-
 print('train end')
-print(n.wih())
-print(n.who())
+
+i = n.wih_who()
+j = n.who_wih()
+
+print(i)
+print()
+print(j)
+
+np.save('weight/wih', i)
+print('---wih saved---')
+np.save('weight/who', j)
+print("---who saved---")
